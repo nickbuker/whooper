@@ -1,10 +1,13 @@
+# standard library imports
 import os
-import redshift_connector
 from typing import Dict
+
+# third party imports
+import redshift_connector
 
 
 def redshift_get_conn(env_var: str) -> redshift_connector.core.Connection:
-    """ Creates a Redshift connection object
+    """Creates a Redshift connection object
 
     Parameters
     ----------
@@ -29,7 +32,7 @@ def redshift_get_conn(env_var: str) -> redshift_connector.core.Connection:
 
 
 def read_sql(sql_filename: str) -> str:
-    """ Ingests a SQL file and returns a str containing the contents of the file
+    """Ingests a SQL file and returns a str containing the contents of the file
 
     Parameters
     ----------
@@ -46,18 +49,16 @@ def read_sql(sql_filename: str) -> str:
     sql = read_sql(sql_filename='../sql/my_script.sql')
     """
     if not isinstance(sql_filename, str):
-        raise TypeError('sql_filename must be of str type')
-    with open(sql_filename, 'r') as f:
-        sql_str = ' '.join(f.readlines())
+        raise TypeError("sql_filename must be of str type")
+    with open(sql_filename, "r") as f:
+        sql_str = " ".join(f.readlines())
     return sql_str
 
 
 def redshift_execute_sql(
-        sql: str,
-        env_var: str,
-        return_data: bool = False,
-        return_dict: bool = False):
-    """ Ingests a SQL query as a string and executes it (potentially returning data)
+    sql: str, env_var: str, return_data: bool = False, return_dict: bool = False
+):
+    """Ingests a SQL query as a string and executes it (potentially returning data)
 
     Parameters
     ----------
@@ -103,7 +104,9 @@ def redshift_execute_sql(
         return_data=True,
         return_dict=True))
     """
-    _redshift_execute_sql_arg_validator(sql=sql, env_var=env_var, return_data=return_data, return_dict=return_dict)
+    _redshift_execute_sql_arg_validator(
+        sql=sql, env_var=env_var, return_data=return_data, return_dict=return_dict
+    )
     with redshift_get_conn(env_var=env_var) as conn:
         with conn.cursor() as cursor:
             cursor.execute(sql)
@@ -112,7 +115,7 @@ def redshift_execute_sql(
                 data = [row for row in cursor]
                 conn.commit()
                 if return_dict:
-                    return {'data': data, 'columns': columns}
+                    return {"data": data, "columns": columns}
                 else:
                     return data, columns
             else:
@@ -121,7 +124,7 @@ def redshift_execute_sql(
 
 
 def _create_creds_dict(creds_str: str) -> Dict:
-    """ Takes the credentials str and converts it to a dict
+    """Takes the credentials str and converts it to a dict
 
     Parameters
     ----------
@@ -135,16 +138,16 @@ def _create_creds_dict(creds_str: str) -> Dict:
         credentials in dict form
     """
     creds_dict = {}
-    for param in creds_str.split(' '):
-        split_param = param.split('=')
-        if split_param[0] == 'port':
+    for param in creds_str.split(" "):
+        split_param = param.split("=")
+        if split_param[0] == "port":
             split_param[1] = int(split_param[1])
         creds_dict[split_param[0]] = split_param[1]
     return creds_dict
 
 
 def _env_var_validator(env_var: str) -> None:
-    """ Validates that the user is providing the an environment variable name, rather than the credentials string
+    """Validates that the user is providing the an environment variable name, rather than the credentials string
 
     Parameters
     ----------
@@ -155,21 +158,23 @@ def _env_var_validator(env_var: str) -> None:
     -------
     None
     """
-    creds_str_keys = ['host', 'database', 'user', 'password', 'port']
+    creds_str_keys = ["host", "database", "user", "password", "port"]
     if all(key in env_var for key in creds_str_keys):
-        raise ValueError('This field should contain the name of an env variable, not the credentials string.')
+        raise ValueError(
+            "This field should contain the name of an env variable, not the credentials string."
+        )
     elif env_var not in os.environ:
-        raise KeyError('Redshift credentials env variable not found.')
+        raise KeyError("Redshift credentials env variable not found.")
     return
 
 
 def _redshift_execute_sql_arg_validator(
-        sql: str,
-        env_var: str,
-        return_data: bool,
-        return_dict: bool,
-    ) -> None:
-    """ Validates the redshift_execute_sql arguments and raises clear errors
+    sql: str,
+    env_var: str,
+    return_data: bool,
+    return_dict: bool,
+) -> None:
+    """Validates the redshift_execute_sql arguments and raises clear errors
 
     Parameters
     ----------
@@ -188,8 +193,8 @@ def _redshift_execute_sql_arg_validator(
     """
     for arg in [sql, env_var]:
         if not isinstance(arg, str):
-            raise TypeError('sql and env_var must be of str type')
+            raise TypeError("sql and env_var must be of str type")
     for arg in [return_data, return_dict]:
         if not isinstance(arg, bool):
-            raise TypeError('return_data and return_dict must be of bool type')
+            raise TypeError("return_data and return_dict must be of bool type")
     return
