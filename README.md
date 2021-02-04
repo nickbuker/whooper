@@ -4,7 +4,7 @@
 Nick Buker
 
 ## Introduction:
-Whooper is a small collection of utility functions for accessing AWS S3 and AWS Redshift. The goal Whooper is to be a simple, robust package to ease data work-flow. It is not intended to handle every possible need (for example credential management is largely left to the user) but it is designed to streamline common tasks.
+Whooper is a small collection of utility functions for accessing AWS S3 and AWS Redshift. The goal of Whooper is to be a simple, robust package to ease data work-flow. It is not intended to handle every possible need (for example credential management is largely left to the user) but it is designed to streamline common tasks.
 
 ## Table of contents:
 
