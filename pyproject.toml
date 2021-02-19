@@ -8,8 +8,8 @@ author = "Nick Buker"
 author-email = "nickbuker@gmail.com"
 home-page = "https://github.com/nickbuker/whooper"
 requires = [
-    "boto3 >=1.17.1",
-    "redshift-connector >=2.0.873",
+    "boto3 >=1.17.11",
+    "pg8000 >=1.17.0",
 ]
 requires-python = ">=3.6,<4"
 description-file = "README.md"

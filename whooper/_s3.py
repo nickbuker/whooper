@@ -1,7 +1,7 @@
 # standard library imports
 import glob
 import os
-from typing import List
+from typing import List, Union
 
 # third party imports
 from ._boto import boto_create_session
@@ -55,8 +55,8 @@ def s3_get_bucket(
 
 def s3_download(
     bucket: str,
-    s3_filepath: str,
-    local_filepath: str,
+    s3_filepath: Union[str, List[str]],
+    local_filepath: Union[str, List[str]],
     profile_name: str = "default",
     region_name: str = "us-west-2",
     multipart_threshold: int = 8388608,
@@ -156,8 +156,8 @@ def s3_download(
 
 def s3_upload(
     bucket: str,
-    local_filepath: str,
-    s3_filepath: str,
+    local_filepath: Union[str, List[str]],
+    s3_filepath: Union[str, List[str]],
     profile_name: str = "default",
     region_name: str = "us-west-2",
     multipart_threshold: int = 8388608,
@@ -250,7 +250,10 @@ def s3_upload(
 
 
 def s3_delete(
-    bucket: str, s3_filepath: str, profile_name="default", region_name="us-west-2"
+    bucket: str,
+    s3_filepath: Union[str, List[str]],
+    profile_name="default",
+    region_name="us-west-2",
 ) -> List[str]:
     """Deletes a file or collection of files from S3
 
@@ -313,8 +316,8 @@ def s3_delete(
 
 
 def _download_upload_filepath_validator(
-    s3_filepath: str,
-    local_filepath: str,
+    s3_filepath: Union[str, List[str]],
+    local_filepath: Union[str, List[str]],
 ) -> None:
     """Validates the s3_filepath and local_filepath arguments and raises clear errors
 
@@ -353,7 +356,7 @@ def _download_upload_filepath_validator(
     return
 
 
-def _delete_filepath_validator(s3_filepath: str) -> None:
+def _delete_filepath_validator(s3_filepath: Union[str, List[str]]) -> None:
     """Validates the s3_filepath argument and raises clear errors
 
     Parameters

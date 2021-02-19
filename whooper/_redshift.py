@@ -1,12 +1,12 @@
 # standard library imports
 import os
-from typing import Dict
+from typing import Dict, Union
 
 # third party imports
-import redshift_connector
+import pg8000
 
 
-def redshift_get_conn(env_var: str) -> redshift_connector.core.Connection:
+def redshift_get_conn(env_var: str) -> pg8000.Connection:
     """Creates a Redshift connection object
 
     Parameters
@@ -27,7 +27,7 @@ def redshift_get_conn(env_var: str) -> redshift_connector.core.Connection:
     _env_var_validator(env_var=env_var)
     cred_str = os.environ[env_var]
     creds_dict = _create_creds_dict(cred_str)
-    conn = redshift_connector.connect(**creds_dict)
+    conn = pg8000.dbapi.connect(ssl_context=True, **creds_dict)
     return conn
 
 
@@ -56,7 +56,10 @@ def read_sql(sql_filename: str) -> str:
 
 
 def redshift_execute_sql(
-    sql: str, env_var: str, return_data: bool = False, return_dict: bool = False
+    sql: str,
+    env_var: str,
+    return_data: bool = False,
+    return_dict: bool = False,
 ):
     """Ingests a SQL query as a string and executes it (potentially returning data)
 
@@ -108,22 +111,22 @@ def redshift_execute_sql(
         sql=sql, env_var=env_var, return_data=return_data, return_dict=return_dict
     )
     with redshift_get_conn(env_var=env_var) as conn:
-        with conn.cursor() as cursor:
-            cursor.execute(sql)
-            if return_data:
-                columns = [desc[0] for desc in cursor.description]
-                data = [row for row in cursor]
-                conn.commit()
-                if return_dict:
-                    return {"data": data, "columns": columns}
-                else:
-                    return data, columns
+        cursor = conn.cursor()
+        cursor.execute(sql)
+        if return_data:
+            columns = [desc[0] for desc in cursor.description]
+            data = [row for row in cursor]
+            conn.commit()
+            if return_dict:
+                return {"data": data, "columns": columns}
             else:
-                conn.commit()
-                return
+                return data, columns
+        else:
+            conn.commit()
+            return
 
 
-def _create_creds_dict(creds_str: str) -> Dict:
+def _create_creds_dict(creds_str: str) -> Dict[str, Union[str, int]]:
     """Takes the credentials str and converts it to a dict
 
     Parameters
